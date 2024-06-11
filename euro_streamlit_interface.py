@@ -153,11 +153,11 @@ def main():  # sourcery skip: use-named-expression
 
     tab_bets, tab_results = st.tabs(['Groups', 'Results'])
 
-    # with tab_bets:
-    #     bets()  
+    with tab_bets:
+        bets()  
 
-    # with tab_results:
-    #     results()
+    with tab_results:
+        results()
 
 
 
