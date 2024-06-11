@@ -4,9 +4,12 @@ import streamlit as st
 
 from botocore.exceptions import NoCredentialsError
 
-S3_BUCKET_NAME_PROJECTS = st.secrets['S3_BUCKET_NAME_PROJECTS']
-AWS_ACCESS_KEY_PROJECTS = st.secrets['AWS_ACCESS_KEY_PROJECTS']
-AWS_SECRET_KEY_PROJECTS = st.secrets['AWS_SECRET_KEY_PROJECTS']
+try:
+    S3_BUCKET_NAME_PROJECTS = st.secrets['S3_BUCKET_NAME_PROJECTS']
+    AWS_ACCESS_KEY_PROJECTS = st.secrets['AWS_ACCESS_KEY_PROJECTS']
+    AWS_SECRET_KEY_PROJECTS = st.secrets['AWS_SECRET_KEY_PROJECTS']
+except:
+    pass
 
 
 
