@@ -142,7 +142,6 @@ def results():
     d = {name: [0] for name in names}
     for let in 'ABCDEF':
         df = get_csv(f'groups/Group {let}.csv')
-        df['Ergebnis'] = '0-0'
         for name in names:
             d[name][0] += df[df[name] == df['Ergebnis']].shape[0]
     st.dataframe(pd.DataFrame(d)) 
