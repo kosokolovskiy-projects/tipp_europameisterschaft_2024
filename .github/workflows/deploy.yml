@@ -1,0 +1,38 @@
+name: Deploy Streamlit App to Azure VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Copy files to Azure VM
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.AZURE_HOST }}
+        username: ${{ secrets.AZURE_USERNAME }}
+        key: ${{ secrets.AZURE_SSH_KEY }}
+        port: ${{ secrets.AZURE_PORT }}
+        source: "."
+        target: "/home/${{ secrets.AZURE_USERNAME }}/test_for_GIT_WORKFLOW"
+
+    - name: Restart Streamlit App
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.AZURE_HOST }}
+        username: ${{ secrets.AZURE_USERNAME }}
+        key: ${{ secrets.AZURE_SSH_KEY }}
+        port: ${{ secrets.AZURE_PORT }}
+        script: |
+          cd /home/${{ secrets.AZURE_USERNAME }}/app
+          pkill streamlit || true
+          nohup streamlit run euro_streamlit_interface.py --server.port 8501 &
