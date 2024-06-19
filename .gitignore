@@ -6,7 +6,7 @@ __pycache__/
 aws/__pycache__
 aws/aws_jupyter.ipynb
 .streamlit
-
+.DS_Store
 
 # C extensions
 *.so
