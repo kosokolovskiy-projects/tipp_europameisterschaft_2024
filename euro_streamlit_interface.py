@@ -59,24 +59,26 @@ def write_to_results(name, group, game, score):
     write_to_s3(S3_BUCKET_NAME_PROJECTS, file_key, updated_content)
 
 
-def highlight_matching_cells(row):
-    styles = [''] * len(row)
-    row['Datum'] = pd.to_datetime(row['Datum'])
-    if row['Ergebnis'] != '-:-' and row['Datum'] >= datetime.now():
-        for name in names:
-            if name in row.index:
-                idx = row.index.get_loc(name)
-                if row[name] == row['Ergebnis']:
-                    styles[idx] = 'background-color: lightgreen'
-                else:
-                    styles[idx] = 'background-color: red'
-    return styles
-
-
 def options_for_group(df):
     df['Datum'] = pd.to_datetime(df['Datum'])
     df_filtered = df[df['Datum'] >= datetime.now()]
     return df_filtered['Begegnung']
+
+def highlight_matching_cells(row):
+    styles = [''] * len(row)
+    row['Datum'] = pd.to_datetime(row['Datum'])
+    if row['Ergebnis'] != '-:-' and row['Datum'] <= datetime.now():
+        for name in names:
+            if name in row.index:
+                idx = row.index.get_loc(name)
+                which_color = yes_or_no(row, name)
+                if which_color == 3:
+                    styles[idx] = 'background-color: green'
+                elif which_color == 1:
+                    styles[idx] = 'background-color: lightgreen' 
+                else:
+                    styles[idx] = 'background-color: lightcoral'
+    return styles
 
 
 def show_df(*args):
@@ -87,9 +89,22 @@ def show_df(*args):
         else:
             st.write(df)
 
+def unite_dfs(df_full, df_ergebnis):
+    df_merged = pd.merge(df_full, df_ergebnis, on='Begegnung', how='left')
+    df_merged.rename(columns={'Ergebnis_y': 'Ergebnis'}, inplace=True)
+    df_merged.drop('Ergebnis_x', axis=1, inplace=True)
+    df_merged = df_merged[['Datum', 'Begegnung', 'Ergebnis', 'Nikita', 'Dmitriy', 'Konsta', 'Stadion']]
+    return df_merged
+
+def create_df_with_ergebnis(group_name):
+    df_1 = get_csv('groups/' + group_name + '.csv')
+    df_1_ergebnis = get_csv('groups/' + group_name + '_nur_ergebnis' + '.csv')
+    df_1 = unite_dfs(df_1, df_1_ergebnis)
+    return df_1
+    
 
 def show_group(group_name):
-    df_1 = get_csv('groups/' + group_name + '.csv')
+    df_1 = create_df_with_ergebnis(group_name)
     df_2 = get_csv('groups/' + group_name + ' Ergebnis' + '.csv')
 
     if df_1 is not None and df_2 is not None:
@@ -138,13 +153,35 @@ def bets():
                     st.success('Your result is saved!')
 
 
+
+def yes_or_no(row, name):
+    # st.write(row[name])
+    if row['Ergebnis'] != '-:-' and type(row[name]) == str:
+        er_1, er_2 = map(int, row['Ergebnis'].split(':')) 
+        pr_1, pr_2 = map(int, row[name].split('-'))
+        if er_1 == pr_1 and er_2 == pr_2:
+            return 3
+        elif er_1 > er_2 and pr_1 > pr_2:
+            return 1
+        elif er_1 < er_2 and pr_1 < pr_2:
+            return 1
+    return 0
+    
+
+
+
 def results():
     d = {name: [0] for name in names}
     for let in 'ABCDEF':
-        df = get_csv(f'groups/Group {let}.csv')
+        df = create_df_with_ergebnis(f'Group {let}')
+        
         for name in names:
-            d[name][0] += df[df[name] == df['Ergebnis']].shape[0]
-    st.dataframe(pd.DataFrame(d)) 
+            df[f'{name}_points'] = df.apply(lambda row: yes_or_no(row, name), axis=1)
+            d[name][0] += df[f'{name}_points'].sum()
+    
+    return pd.DataFrame(d)
+
+
 
 
 def main():  # sourcery skip: use-named-expression
@@ -156,9 +193,20 @@ def main():  # sourcery skip: use-named-expression
         bets()  
 
     with tab_results:
-        results()
+        st.write(results())
 
 
 
 if __name__ == '__main__':
     main()
+
+
+
+
+# def results():
+#     d = {name: [0] for name in names}
+#     for let in 'ABCDEF':
+#         df = get_csv(f'groups/Group {let}.csv')
+#         for name in names:
+#             d[name][0] += df[df[name] == df['Ergebnis']].shape[0]
+#     st.dataframe(pd.DataFrame(d)) 
