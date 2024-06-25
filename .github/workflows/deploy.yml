@@ -35,4 +35,4 @@ jobs:
         script: |
           cd /home/${{ secrets.AZURE_USERNAME }}/test_for_GIT_WORKFLOW
           pkill streamlit || true
-          nohup streamlit run euro_streamlit_interface.py --server.port 8501 &
+          streamlit run euro_streamlit_interface.py --server.port 8501 & disown
