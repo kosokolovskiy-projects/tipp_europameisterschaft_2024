@@ -50,7 +50,7 @@ def get_from_s3(object_path_in_s3):
     except NoCredentialsError:
         print('Credentials not available')
     except Exception as e:
-        print(f'An error occurred: {e}')
+        print(f'?An error occurred: {e}')
     return 0 
 
 def delete_folder_from_s3(folder_path):  # sourcery skip: use-named-expression
@@ -77,7 +77,7 @@ def delete_folder_from_s3(folder_path):  # sourcery skip: use-named-expression
     except NoCredentialsError:
         print('Credentials not available')
     except Exception as e:
-        print(f'An error occurred: {e}')
+        print(f'!An error occurred: {e}')
 
 def delete_object_from_s3(object_key):
     s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_PROJECTS, aws_secret_access_key=AWS_SECRET_KEY_PROJECTS)
@@ -92,7 +92,7 @@ def delete_object_from_s3(object_key):
     except NoCredentialsError:
         print('Credentials not available')
     except Exception as e:
-        print(f'An error occurred: {e}')
+        print(f'!!An error occurred: {e}')
 
 
 def read_s3_file(bucket_name, file_key):

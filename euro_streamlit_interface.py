@@ -12,7 +12,7 @@ try:
 except Exception:
     print(Exception)
 
-names = ['Konsta', 'Dmitriy', 'Nikita']
+names = ['Konsta', 'Alexey', 'Dmitriy', 'Nikita']
 
 def get_csv(name):
     try:
@@ -93,7 +93,9 @@ def unite_dfs(df_full, df_ergebnis):
     df_merged = pd.merge(df_full, df_ergebnis, on='Begegnung', how='left')
     df_merged.rename(columns={'Ergebnis_y': 'Ergebnis'}, inplace=True)
     df_merged.drop('Ergebnis_x', axis=1, inplace=True)
-    df_merged = df_merged[['Datum', 'Begegnung', 'Ergebnis', 'Nikita', 'Dmitriy', 'Konsta', 'Stadion']]
+    if 'Alexey' not in df_merged.columns:
+        df_merged['Alexey'] = None
+    df_merged = df_merged[['Datum', 'Begegnung', 'Ergebnis', 'Konsta', 'Alexey', 'Dmitriy', 'Nikita','Stadion']]
     return df_merged
 
 def create_df_with_ergebnis(group_name):
@@ -105,10 +107,16 @@ def create_df_with_ergebnis(group_name):
 
 def show_group(group_name):
     df_1 = create_df_with_ergebnis(group_name)
-    df_2 = get_csv('groups/' + group_name + ' Ergebnis' + '.csv')
+    if 'Group' in group_name:
+        df_2 = get_csv('groups/' + group_name + ' Ergebnis' + '.csv')
+    else:
+        df_2 = None
+
 
     if df_1 is not None and df_2 is not None:
         show_df(df_1, df_2)
+    elif df_1 is not None and df_2 is None:
+        show_df(df_1)
     else:
         st.error('Object File is not Found. Please, try later!')
         return 0
@@ -131,7 +139,7 @@ def select_result_for_game(teams_str):
 
 
 def bets():
-    groups = ['Group A', 'Group B', 'Group C', 'Group D', 'Group E', 'Group F']
+    groups = ['Group A', 'Group B', 'Group C', 'Group D', 'Group E', 'Group F', '1-8', '1-4', '1-2', 'Final']
 
     chosen_group = st.selectbox(label='Choose the group: ', options=groups)
 
