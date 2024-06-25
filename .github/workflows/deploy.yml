@@ -35,4 +35,5 @@ jobs:
         script: |
           cd /home/${{ secrets.AZURE_USERNAME }}/test_for_GIT_WORKFLOW
           pkill streamlit || true
-          streamlit run euro_streamlit_interface.py --server.port 8501 & disown
+          nohup streamlit run euro_streamlit_interface.py --server.port 8501 > streamlit.log 2>&1 &
+          echo "Streamlit started with PID $!"
