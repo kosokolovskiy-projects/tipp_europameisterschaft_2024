@@ -139,7 +139,7 @@ def select_result_for_game(teams_str):
 
 
 def bets():
-    groups = ['Group A', 'Group B', 'Group C', 'Group D', 'Group E', 'Group F', '1-8', '1-4', '1-2', 'Final']
+    groups = ['1-8', '1-4', '1-2', 'Final', 'Group A', 'Group B', 'Group C', 'Group D', 'Group E', 'Group F']
 
     chosen_group = st.selectbox(label='Choose the group: ', options=groups)
 
@@ -178,7 +178,8 @@ def yes_or_no(row, name):
 
 
 
-def results():
+def results_groups():
+    st.markdown('Groups Results')
     d = {name: [0] for name in names}
     for let in 'ABCDEF':
         df = create_df_with_ergebnis(f'Group {let}')
@@ -189,32 +190,34 @@ def results():
     
     return pd.DataFrame(d)
 
+def results_final():
+    st.markdown('Play-Off Results')
+    d = {name: [0] for name in names}
+    stages = ['1-8', '1-4', '1-2', 'Final']
+    for stage in stages:
+        df = create_df_with_ergebnis(stage)
+        
+        for name in names:
+            df[f'{name}_points'] = df.apply(lambda row: yes_or_no(row, name), axis=1)
+            d[name][0] += df[f'{name}_points'].sum()
+    
+    return pd.DataFrame(d)
 
 
 
 def main():  # sourcery skip: use-named-expression
     st.title('Wer wird gewonnen?')
 
-    tab_bets, tab_results = st.tabs(['Groups', 'Results'])
+    tab_bets, tab_results = st.tabs(['Matches', 'Results'])
 
     with tab_bets:
         bets()  
 
     with tab_results:
-        st.write(results())
+        st.write(results_final())
+        st.write(results_groups())
 
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
-# def results():
-#     d = {name: [0] for name in names}
-#     for let in 'ABCDEF':
-#         df = get_csv(f'groups/Group {let}.csv')
-#         for name in names:
-#             d[name][0] += df[df[name] == df['Ergebnis']].shape[0]
-#     st.dataframe(pd.DataFrame(d)) 
